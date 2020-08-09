@@ -14,3 +14,13 @@ class Requestlink:
         }
         url = ('?'.join((quath, urlencode(params))))
         return url
+
+if __name__ == '__main__':
+
+    # Obj = Requestlink()
+    #
+    # print(Obj.requst_s())   # token:63ab19d0a064894aa1316fb30ef8170f5883e5994bfe8d8b86976348f132fca387f3690c1a4710850defe
+
+    mas = []
+
+    print(bool(mas))

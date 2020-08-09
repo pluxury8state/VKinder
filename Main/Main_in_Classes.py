@@ -37,22 +37,21 @@ class VKinder:
             self.already_watched_ids.append(i['user_id'])
 
     def search(self, to_city, to_age, to_sex, to_stat):
-        id_list = []  # сюда добавляются id пользователей
+        self.id_list = []  # сюда добавляются id пользователей
 
         search = self.vk_api.users.search(sort=0, count=1000, city=to_city, age_from=to_age, age_to=to_age + 1, sex=to_sex, status=to_stat, fields='id', v=5.89)
 
         print('Людей найдено:', search['count'])
 
         for i in search['items']:
-            id_list.append(i['id'])
-
-        self.id_list = id_list
+            self.id_list.append(i['id'])
 
     def search_city_id(self, city):  # ищет похожие города и регионы, в конце нужно выбрать номер из предложенного поиска
         search = self.vk_api.database.getCities(country_id=1, q=city, need_all=1, count=1000, v=5.122)
 
         for items in search['items']:
             print(items['title'], ',', items.get('area'), ',', items.get('region'), '-', items['id'])
+
         to_city = input('введите идентификатор города, из нужного вам региона:')
 
         return int(to_city)
@@ -91,8 +90,9 @@ class VKinder:
                 else:
                     break
             id_collection.append(id_us)
+        if len(id_collection) != 0:
+            self.searches.Already_watched.insert_many(id_collection)
 
-        self.searches.Already_watched.insert_many(id_collection)
 
     def sort_top_3_photos(self):  # сортирова 3 популярных фото
         self.dict_photos_and_people = {}
@@ -109,8 +109,8 @@ class VKinder:
             if len(photo_ids) > 3:
                 photo_ids = photo_ids[:3]
 
-            for items in photo_ids:
-                self.dict_photos_and_people[user_id].append(items[0])
+            for itms in photo_ids:
+                self.dict_photos_and_people[user_id].append(itms[0])
 
     def list_of_objects_to_file(self):  # добавление в финальный список адреса странички пользователя и ссылок на 3 популярные фотографии с его профиля
         self.list_of_objects = []
@@ -127,33 +127,32 @@ class VKinder:
             self.list_of_objects.append(object_dict)
 
     def write_to_file(self):
-        with open('search_objects.json', 'w', encoding='utf-8') as file:
+        with open('../search_objects.json', 'w', encoding='utf-8') as file:
             json.dump(self.list_of_objects, file, ensure_ascii=False, indent=2)
 
 
-#begin
+if __name__ == '__main__':
 
+    # Obj = Requestlink()
+    #
+    # print(Obj.requst_s())   # token:c9bbbe5274c51ed456346b91da5f413ef86fa19f598f61f0c19114c2579bf1ea820275f8275cc9c2caf4c
 
-# Obj=Requestlink()
-#
-# print(Obj.requst_s())   # token:aa7e14e1506de13ea39e0250760441a78e8f8217a073a4f7770b2a13ebd827bdcedbdb92ec3fa369c2d08
+    Object = VKinder(input('введите токен из url:'))
 
-Object = VKinder(input('введите токен из url:'))
+    to_city = Object.search_city_id((input('вввелите город:')))
 
-to_city = Object.search_city_id((input('вввелите город:')))
+    to_age = int(input('ввелите возраст:'))
 
-to_age = int(input('ввелите возраст:'))
+    to_sex = int(input('введите пол(1-женский, 2-мужской):'))
 
-to_sex = int(input('введите пол(1-женский, 2-мужской):'))
+    to_stat = to_status()
 
-to_stat = to_status()
+    Object.search(to_city, to_age, to_sex, to_stat)
 
-Object.search(to_city, to_age, to_sex, to_stat)
+    Object.get_user_and_photos_info()
 
-Object.get_user_and_photos_info()
+    Object.sort_top_3_photos()
 
-Object.sort_top_3_photos()
+    Object.list_of_objects_to_file()
 
-Object.list_of_objects_to_file()
-
-Object.write_to_file()
+    Object.write_to_file()
